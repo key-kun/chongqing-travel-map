@@ -23,6 +23,10 @@
  .map-stage{height:100%;width:100%;isolation:isolate;z-index:0}
  #show-list{display:none}
  .map-caption{top:12px;left:12px;max-width:calc(100% - 86px);padding:10px 12px;line-height:1.5;overflow-wrap:anywhere}
+ .map-tools{top:12px;left:12px;gap:6px}
+ .marker-display>span{padding:0 5px}
+ .marker-display button{min-height:44px;padding:6px 8px}
+ .map-name-pin{min-height:44px;font-size:14px;max-width:min(200px,calc(100vw - 40px))}
  .map-banner{top:64px;left:12px;right:12px;padding:10px 12px;font-size:14px}
  .map-banner button{min-height:44px;padding:0 8px}
  .map-key{bottom:42px;left:12px;gap:6px;padding:8px 10px;max-width:calc(100% - 24px);font-size:12px}
@@ -30,7 +34,9 @@
  .leaflet-right .leaflet-control{margin-right:12px}
  .leaflet-touch .leaflet-bar a,.leaflet-bar a{width:44px;height:44px;line-height:44px;font-size:25px}
  .leaflet-control-attribution{max-width:100%;line-height:1.5}
- body[data-mobile-view="detail"] .leaflet-bottom.leaflet-right{top:60px;bottom:auto;left:12px;right:auto;max-width:calc(100% - 84px)}
+ body[data-mobile-view="detail"] .map-tools{display:none}
+ body[data-mobile-view="detail"] .leaflet-bottom.leaflet-right{top:12px;bottom:auto;left:12px;right:auto;max-width:calc(100% - 84px)}
+ .map-stage .map-banner{top:148px}
  body[data-mobile-view="detail"] .leaflet-control-attribution{margin-right:0;border-radius:4px;float:left}
  .leaflet-container{touch-action:pan-x pan-y; -webkit-tap-highlight-color:transparent}
  .leaflet-tooltip{white-space:nowrap;max-width:min(260px,75vw);overflow:hidden;text-overflow:ellipsis}

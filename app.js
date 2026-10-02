@@ -6,6 +6,9 @@
  const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const safeUrl=url=>/^https?:\/\//.test(url||'')?escape(url):'#';
  let status='all',scope='city',selected=null,lightboxFrames=[],lightboxIndex=0,lightboxPlace='',returnFocus=null;
+ const markerModeKey='cq-map-marker-label-mode';
+ let markerMode='category';
+ try{if(localStorage.getItem(markerModeKey)==='name')markerMode='name';}catch{}
  const compactMedia=matchMedia('(max-width:760px), (max-width:1024px) and (max-height:520px) and (orientation:landscape)');
  let mobileView='map',hasDetail=false,compactActive=null,layoutFrame=0,lastMapSize={x:0,y:0};
  $('report-date').textContent=D.reportDate;
@@ -16,10 +19,35 @@
  const cluster=L.markerClusterGroup({maxClusterRadius:45,showCoverageOnHover:false,spiderfyOnMaxZoom:true,animate:false}).addTo(map);
  let clusteredPointsKey='';
  const markers=new Map();
+ function pointIcon(p){
+  const kind=p.categories[0],color=colors[kind];
+  return markerMode==='name'
+   ?L.divIcon({className:'name-pin-wrapper',html:`<div class="map-name-pin" style="--point-color:${color}"><span class="name-pin-dot" aria-hidden="true"></span><span>${escape(p.name)}</span></div>`,iconSize:[44,44],iconAnchor:[22,44]})
+   :L.divIcon({className:'pin-wrapper',html:`<div class="map-pin" style="--point-color:${color}"><span>${glyphs[kind]}</span></div>`,iconSize:[30,30],iconAnchor:[15,30]});
+ }
+ function syncMarkerElement(marker,p){
+  const el=marker.getElement();
+  if(el){el.setAttribute('aria-label',p.name);el.classList.toggle('selected-marker',selected===p.id);}
+ }
+ function syncMarkerTooltip(marker,p){
+  marker.unbindTooltip();
+  if(markerMode==='category')marker.bindTooltip(escape(p.name),{direction:'top',offset:[0,-25]});
+ }
  D.points.filter(p=>p.coordinates).forEach(p=>{
-  const kind=p.categories[0],marker=L.marker([p.coordinates.lat,p.coordinates.lng],{title:p.name,alt:p.name,icon:L.divIcon({className:'pin-wrapper',html:`<div class="map-pin" style="--point-color:${colors[kind]}"><span>${glyphs[kind]}</span></div>`,iconSize:[30,30],iconAnchor:[15,30]})});
-  marker.bindTooltip(escape(p.name),{direction:'top',offset:[0,-25]});marker.on('click',()=>selectPoint(p.id,false));marker.on('add',()=>{const el=marker.getElement();if(el){el.setAttribute('aria-label',p.name);el.classList.toggle('selected-marker',selected===p.id);}});markers.set(p.id,marker);
+  const marker=L.marker([p.coordinates.lat,p.coordinates.lng],{title:p.name,alt:p.name,icon:pointIcon(p)});
+  syncMarkerTooltip(marker,p);marker.on('click',()=>selectPoint(p.id,false));marker.on('add',()=>syncMarkerElement(marker,p));markers.set(p.id,marker);
  });
+ function syncMarkerModeButtons(){
+  document.querySelectorAll('[data-marker-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.markerMode===markerMode)));
+ }
+ document.querySelectorAll('[data-marker-mode]').forEach(b=>b.onclick=()=>{
+  const next=b.dataset.markerMode;if(!['category','name'].includes(next)||next===markerMode)return;
+  markerMode=next;
+  markers.forEach((marker,id)=>{const p=pointById.get(id);marker.setIcon(pointIcon(p));syncMarkerTooltip(marker,p);syncMarkerElement(marker,p);});
+  syncMarkerModeButtons();
+  try{localStorage.setItem(markerModeKey,markerMode);}catch{}
+ });
+ syncMarkerModeButtons();
  let tileSuccess=0,tileErrors=0;
  const showMapMessage=text=>{$('map-status-text').textContent=text;$('map-status').hidden=false;};
  tiles.on('tileload',()=>{tileSuccess++;if(navigator.onLine)$('map-status').hidden=true;});
