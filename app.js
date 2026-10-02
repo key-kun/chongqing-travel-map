@@ -56,6 +56,7 @@
  window.addEventListener('online',()=>{tileErrors=0;tiles.redraw();});
  $('retry-map').onclick=()=>{tileSuccess=0;tileErrors=0;$('map-status').hidden=true;tiles.redraw();setTimeout(()=>{if(!tileSuccess)showMapMessage('底图仍未加载，请检查网络连接。');},10000);};
  setTimeout(()=>{if(!tileSuccess)showMapMessage('底图加载较慢。你可以先从列表查看地点和截图。');},12000);
+ const userLocation=window.createUserLocationControl({map,L,button:$('locate-me'),panel:$('location-panel'),message:$('location-message'),clearButton:$('clear-location'),canCenter:()=>!compactMedia.matches||mobileView==='map'});
  function filtered(ignoreStatus=false){
   const q=$('search').value.trim().toLocaleLowerCase(),region=$('region').value,category=$('category').value;
   return D.points.filter(p=>(!region||p.region===region)&&(!category||p.categories.includes(category))&&(ignoreStatus||status==='all'||p.locationStatus===status)&&(!q||[p.name,p.area,p.id,...p.entityIds].join(' ').toLocaleLowerCase().includes(q)));
@@ -119,6 +120,7 @@
   });
  }
  function fitScope(next){
+  userLocation.cancelCentering();
   if(compactMedia.matches)showMobileView('map');
   scope=next;document.querySelectorAll('[data-scope]').forEach(b=>b.classList.toggle('active',b.dataset.scope===scope));
   $('region').value=['大足','武隆'].includes(scope)?scope:'';render();
@@ -132,6 +134,7 @@
  document.querySelectorAll('[data-scope]').forEach(b=>b.onclick=()=>fitScope(b.dataset.scope));
  const field=(title,content)=>`<div class="field"><b>${escape(title)}</b><p>${escape(content)}</p></div>`;
  function selectPoint(id,move=true){
+  userLocation.cancelCentering();
   const p=pointById.get(id);if(!p)return;selected=id;render();
   if(!move)$('point-list').querySelector(`[data-point="${id}"]`)?.scrollIntoView({block:'nearest'});
   $('sidebar').classList.remove('open');$('detail').classList.add('open');
