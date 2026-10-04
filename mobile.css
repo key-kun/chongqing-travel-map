@@ -7,7 +7,7 @@
 .mobile-nav,.sheet-controls,.lightbox-touch-hint{display:none}
 
 /* Include phones in landscape, where width alone is not a useful breakpoint. */
-@media(max-width:760px),(max-width:1024px) and (max-height:520px) and (orientation:landscape){
+@media(max-width:1000px),(max-width:1024px) and (max-height:520px) and (orientation:landscape){
  :root{--mobile-bar-height:calc(64px + env(safe-area-inset-bottom,0px));--topbar-height:100px}
  html,body{width:100%;height:var(--app-height,100dvh);overflow:hidden;overscroll-behavior:none}
  body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
